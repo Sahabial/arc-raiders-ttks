@@ -1,0 +1,25 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "antd",
+    "vite",
+    "ttks",
+    "Arpeggio",
+    "Bettina",
+    "Bobcat",
+    "Burletta",
+    "Ferro",
+    "Hairpin",
+    "Hullcracker",
+    "Osprey",
+    "Rattler",
+    "Renegade",
+    "Stitcher",
+    "Tempest",
+    "Torrente",
+    "Venator",
+    "Vulcano"
+  ],
+  "ignorePaths": ["node_modules", "dist", "build", ".git"]
+}

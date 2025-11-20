@@ -1,0 +1,33 @@
+const fs = require('fs')
+const path = require('path')
+
+// Read files
+const htmlPath = path.join(__dirname, 'dist', 'index.html')
+const cssPath = path.join(__dirname, 'dist', 'assets', 'index-Cpa7m947.css')
+const jsPath = path.join(__dirname, 'dist', 'assets', 'index-ts53-z8y.js')
+
+const html = fs.readFileSync(htmlPath, 'utf8')
+const css = fs.readFileSync(cssPath, 'utf8')
+const js = fs.readFileSync(jsPath, 'utf8')
+
+// Create standalone HTML with everything inlined
+const standaloneHTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arc Raiders Weapons TTKs</title>
+    <style>${css}</style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">${js}</script>
+  </body>
+</html>`
+
+// Write standalone file
+const outputPath = path.join(__dirname, 'dist', 'standalone.html')
+fs.writeFileSync(outputPath, standaloneHTML)
+
+console.log('Created standalone.html in dist folder')
+console.log(`File size: ${(fs.statSync(outputPath).size / 1024).toFixed(2)} KB`)
