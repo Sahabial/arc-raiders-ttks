@@ -12,10 +12,10 @@ import {
 import ShotsBreakdownModal from './ShotsBreakdownModal';
 
 // Shield icons from public assets
-const lightShieldIcon = '/assets/shields/50px-Light_Shield.png.webp';
-const mediumShieldIcon = '/assets/shields/50px-Medium_Shield.png.webp';
-const heavyShieldIcon = '/assets/shields/50px-Heavy_Shield.png.webp';
-const headshotIcon = '/assets/shields/headshot-icon.png';
+const lightShieldIcon = './assets/shields/50px-Light_Shield.png.webp';
+const mediumShieldIcon = './assets/shields/50px-Medium_Shield.png.webp';
+const heavyShieldIcon = './assets/shields/50px-Heavy_Shield.png.webp';
+const headshotIcon = './assets/shields/headshot-icon.png';
 
 interface TableRow {
   key: string;
