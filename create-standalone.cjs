@@ -2,18 +2,18 @@ const fs = require('fs')
 const path = require('path')
 
 // Read files
-const htmlPath = path.join(__dirname, 'dist', 'index.html')
-const cssPath = path.join(__dirname, 'dist', 'assets', 'index-Cpa7m947.css')
-const jsPath = path.join(__dirname, 'dist', 'assets', 'index-ts53-z8y.js')
+const htmlPath = path.join(__dirname, 'docs', 'index.html')
+const cssPath = path.join(__dirname, 'docs', 'assets', 'index-Cpa7m947.css')
+const jsPath = path.join(__dirname, 'docs', 'assets', 'index-ts53-z8y.js')
 
 // Find the actual CSS and JS files (they have hashed names)
-const assetsDir = path.join(__dirname, 'dist', 'assets')
+const assetsDir = path.join(__dirname, 'docs', 'assets')
 const files = fs.readdirSync(assetsDir)
 const cssFile = files.find((f) => f.endsWith('.css'))
 const jsFile = files.find((f) => f.endsWith('.js'))
 
 if (!cssFile || !jsFile) {
-  console.error('CSS or JS file not found in dist/assets')
+  console.error('CSS or JS file not found in docs/assets')
   process.exit(1)
 }
 
@@ -37,9 +37,9 @@ const standaloneHTML = `<!doctype html>
 </html>`
 
 // Write standalone file
-const outputPath = path.join(__dirname, 'dist', 'standalone.html')
+const outputPath = path.join(__dirname, 'docs', 'standalone.html')
 fs.writeFileSync(outputPath, standaloneHTML)
 
-console.log('Created standalone.html in dist folder')
+console.log('Created standalone.html in docs folder')
 console.log(`File size: ${(fs.statSync(outputPath).size / 1024).toFixed(2)} KB`)
 

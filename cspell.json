@@ -21,5 +21,5 @@
     "Venator",
     "Vulcano"
   ],
-  "ignorePaths": ["node_modules", "dist", "build", ".git"]
+  "ignorePaths": ["node_modules", "dist", "docs", "build", ".git"]
 }
