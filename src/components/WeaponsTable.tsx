@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Table, Input } from 'antd';
+import type { MouseEvent } from 'react';
+import { Table, Input, ConfigProvider, Checkbox } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { weapons } from '../data/weapons';
 import { shields } from '../data/shields';
@@ -50,6 +51,7 @@ interface ModalState {
 
 const WeaponsTable = () => {
   const [weaponFilter, setWeaponFilter] = useState<string>('');
+  const [showOtherLevels, setShowOtherLevels] = useState<boolean>(false);
 
   const lightShield =
     shields.find(s => {
@@ -161,11 +163,7 @@ const WeaponsTable = () => {
     bgColor: string,
     icons?: string | string[]
   ) => {
-    const iconArray = icons
-      ? Array.isArray(icons)
-        ? icons
-        : [icons]
-      : [];
+    const iconArray = icons ? (Array.isArray(icons) ? icons : [icons]) : [];
     return (
       <div
         style={{
@@ -179,18 +177,20 @@ const WeaponsTable = () => {
           justifyContent: 'center',
         }}
       >
-        {iconArray.map((icon, index) => (
-          <img
-            key={index}
-            src={icon}
-            alt=""
-            style={{
-              width: '20px',
-              height: '20px',
-              objectFit: 'contain',
-            }}
-          />
-        ))}
+        {iconArray.map((icon, index) => {
+          return (
+            <img
+              key={index}
+              src={icon}
+              alt=""
+              style={{
+                width: '20px',
+                height: '20px',
+                objectFit: 'contain',
+              }}
+            />
+          );
+        })}
         {title && <span>{title}</span>}
       </div>
     );
@@ -217,7 +217,7 @@ const WeaponsTable = () => {
     // Round both values for comparison
     const currentRounded = Math.round(currentShots);
     const lowerRounded = Math.round(lowerTierShots);
-    
+
     // More shots = upgrade (better shield)
     if (currentRounded > lowerRounded) {
       return 'upgrade';
@@ -267,12 +267,23 @@ const WeaponsTable = () => {
     return '';
   };
 
+  // Helper function for sorting numbers with Infinity handling
+  const numberSorter = (a: number, b: number): number => {
+    if (a === Infinity && b === Infinity) return 0;
+    if (a === Infinity) return 1; // Infinity goes to end
+    if (b === Infinity) return -1; // Infinity goes to end
+    return a - b;
+  };
+
   const columns: ColumnsType<TableRow> = [
     {
       title: renderHeader('Weapon', '#e6f7ff'),
       dataIndex: 'weaponName',
       key: 'weaponName',
       fixed: 'left',
+      sorter: (a: TableRow, b: TableRow) => {
+        return a.weaponName.localeCompare(b.weaponName);
+      },
       onCell: () => {
         return { style: getColumnStyle('#e6f7ff') };
       },
@@ -281,6 +292,9 @@ const WeaponsTable = () => {
       title: renderHeader('Lvl', '#e6f7ff'),
       dataIndex: 'upgradeLevel',
       key: 'upgradeLevel',
+      sorter: (a: TableRow, b: TableRow) => {
+        return a.upgradeLevel - b.upgradeLevel;
+      },
       render: (level: number) => {
         return level;
       },
@@ -292,6 +306,9 @@ const WeaponsTable = () => {
       title: renderHeader('DMG', '#e6f7ff'),
       dataIndex: 'damage',
       key: 'damage',
+      sorter: (a: TableRow, b: TableRow) => {
+        return a.damage - b.damage;
+      },
       render: (damage: number) => {
         return damage.toFixed(1);
       },
@@ -303,16 +320,22 @@ const WeaponsTable = () => {
       title: renderHeader('Mag', '#e6f7ff'),
       dataIndex: 'magazineSize',
       key: 'magazineSize',
+      sorter: (a: TableRow, b: TableRow) => {
+        return a.magazineSize - b.magazineSize;
+      },
       onCell: () => {
         return { style: getColumnStyle('#e6f7ff') };
       },
     },
     {
-      title: renderHeader('', '#e6f7ff', headshotIcon),
+      title: renderHeader('HS xDMG', '#e6f7ff'),
       dataIndex: 'headshotMultiplier',
       key: 'headshotMultiplier',
+      sorter: (a: TableRow, b: TableRow) => {
+        return a.headshotMultiplier - b.headshotMultiplier;
+      },
       render: (mult: number) => {
-        return `${mult}x`;
+        return `x${mult}`;
       },
       onCell: () => {
         return { style: getColumnStyle('#e6f7ff') };
@@ -323,6 +346,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS', '#fff7e6', lightShieldIcon),
       dataIndex: 'bodyShotsLight',
       key: 'bodyShotsLight',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyShotsLight, b.bodyShotsLight);
+      },
       onCell: () => {
         return { style: getColumnStyle('#fff7e6') };
       },
@@ -349,6 +375,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS', '#fff7e6', mediumShieldIcon),
       dataIndex: 'bodyShotsMedium',
       key: 'bodyShotsMedium',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyShotsMedium, b.bodyShotsMedium);
+      },
       onCell: (record: TableRow) => {
         return {
           style: getCellStyle(
@@ -386,6 +415,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS', '#fff7e6', heavyShieldIcon),
       dataIndex: 'bodyShotsHeavy',
       key: 'bodyShotsHeavy',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyShotsHeavy, b.bodyShotsHeavy);
+      },
       onCell: (record: TableRow) => {
         return {
           style: getCellStyle(
@@ -424,6 +456,9 @@ const WeaponsTable = () => {
       title: renderHeader('', '#f6ffed', [headshotIcon, lightShieldIcon]),
       dataIndex: 'headshotsLight',
       key: 'headshotsLight',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headshotsLight, b.headshotsLight);
+      },
       onCell: () => {
         return { style: getColumnStyle('#f6ffed') };
       },
@@ -450,6 +485,9 @@ const WeaponsTable = () => {
       title: renderHeader('', '#f6ffed', [headshotIcon, mediumShieldIcon]),
       dataIndex: 'headshotsMedium',
       key: 'headshotsMedium',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headshotsMedium, b.headshotsMedium);
+      },
       onCell: (record: TableRow) => {
         return {
           style: getCellStyle(
@@ -487,6 +525,9 @@ const WeaponsTable = () => {
       title: renderHeader('', '#f6ffed', [headshotIcon, heavyShieldIcon]),
       dataIndex: 'headshotsHeavy',
       key: 'headshotsHeavy',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headshotsHeavy, b.headshotsHeavy);
+      },
       onCell: (record: TableRow) => {
         return {
           style: getCellStyle(
@@ -525,6 +566,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS Mags', '#fff1f0', lightShieldIcon),
       dataIndex: 'bodyMagsLight',
       key: 'bodyMagsLight',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyMagsLight, b.bodyMagsLight);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -536,6 +580,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS Mags', '#fff1f0', mediumShieldIcon),
       dataIndex: 'bodyMagsMedium',
       key: 'bodyMagsMedium',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyMagsMedium, b.bodyMagsMedium);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -553,6 +600,9 @@ const WeaponsTable = () => {
       title: renderHeader('BS Mags', '#fff1f0', heavyShieldIcon),
       dataIndex: 'bodyMagsHeavy',
       key: 'bodyMagsHeavy',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.bodyMagsHeavy, b.bodyMagsHeavy);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -571,6 +621,9 @@ const WeaponsTable = () => {
       title: renderHeader('Mags', '#f0f5ff', [headshotIcon, lightShieldIcon]),
       dataIndex: 'headMagsLight',
       key: 'headMagsLight',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headMagsLight, b.headMagsLight);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -582,6 +635,9 @@ const WeaponsTable = () => {
       title: renderHeader('Mags', '#f0f5ff', [headshotIcon, mediumShieldIcon]),
       dataIndex: 'headMagsMedium',
       key: 'headMagsMedium',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headMagsMedium, b.headMagsMedium);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -599,6 +655,9 @@ const WeaponsTable = () => {
       title: renderHeader('Mags', '#f0f5ff', [headshotIcon, heavyShieldIcon]),
       dataIndex: 'headMagsHeavy',
       key: 'headMagsHeavy',
+      sorter: (a: TableRow, b: TableRow) => {
+        return numberSorter(a.headMagsHeavy, b.headMagsHeavy);
+      },
       render: (mags: number) => {
         return mags === Infinity ? '∞' : mags.toString();
       },
@@ -615,12 +674,23 @@ const WeaponsTable = () => {
   ];
 
   const filteredTableData = tableData.filter(row => {
-    return row.weaponName.toLowerCase().includes(weaponFilter.toLowerCase());
+    const matchesWeaponFilter = row.weaponName
+      .toLowerCase()
+      .includes(weaponFilter.toLowerCase());
+    const matchesLevelFilter = showOtherLevels || row.upgradeLevel === 1;
+    return matchesWeaponFilter && matchesLevelFilter;
   });
 
   return (
     <>
-      <div style={{ marginBottom: '16px' }}>
+      <div
+        style={{
+          marginBottom: '16px',
+          display: 'flex',
+          gap: '16px',
+          alignItems: 'center',
+        }}
+      >
         <Input
           placeholder="Filter by weapon name..."
           value={weaponFilter}
@@ -630,28 +700,46 @@ const WeaponsTable = () => {
           allowClear
           style={{ maxWidth: '300px' }}
         />
+        <Checkbox
+          checked={showOtherLevels}
+          onChange={e => {
+            setShowOtherLevels(e.target.checked);
+          }}
+        >
+          Show other weapon levels
+        </Checkbox>
       </div>
-      <Table
-        dataSource={filteredTableData}
-        columns={columns}
-        rowKey="key"
-        pagination={false}
-        scroll={{ x: 'max-content', y: 'calc(100vh - 250px)' }}
-        sticky={{ offsetHeader: 64 }}
-        onRow={() => {
-          return {
-            style: {
-              cursor: 'default',
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              cellPaddingBlock: 4,
             },
-            onMouseEnter: (e: React.MouseEvent<HTMLTableRowElement>) => {
-              e.currentTarget.style.backgroundColor = '#f5f5f5';
-            },
-            onMouseLeave: (e: React.MouseEvent<HTMLTableRowElement>) => {
-              e.currentTarget.style.backgroundColor = '';
-            },
-          };
+          },
         }}
-      />
+      >
+        <Table
+          dataSource={filteredTableData}
+          columns={columns}
+          rowKey="key"
+          pagination={false}
+          scroll={{ x: 'max-content', y: 'calc(100vh - 250px)' }}
+          sticky={{ offsetHeader: 64 }}
+          onRow={() => {
+            return {
+              style: {
+                cursor: 'default',
+              },
+              onMouseEnter: (e: MouseEvent<HTMLTableRowElement>) => {
+                e.currentTarget.style.backgroundColor = '#f5f5f5';
+              },
+              onMouseLeave: (e: MouseEvent<HTMLTableRowElement>) => {
+                e.currentTarget.style.backgroundColor = '';
+              },
+            };
+          }}
+        />
+      </ConfigProvider>
       {modalState.weaponUpgrade && (
         <ShotsBreakdownModal
           open={modalState.open}
